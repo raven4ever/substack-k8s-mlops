@@ -6,13 +6,19 @@ resources:
 # - cache-deployer / cache-server: v1 caching webhook (v2 caches in the driver)
 # - metadata-writer: v1 metadata (v2 driver/launcher write it)
 # - viewer controller + viewers CRD: v1 TensorBoard viewer
-# - visualization server (~1 GB image): v1 / TFX visualizations
 # - applications.app.k8s.io CRD: unused, and it hijacks `kubectl get applications` from Argo CD
 patches:
   - target:
-      name: ^(cache-.*|kubeflow-pipelines-cache.*|metadata-writer|kubeflow-pipelines-metadata-writer.*|ml-pipeline-viewer.*|kubeflow-pipelines-viewer|viewers\.kubeflow\.org|ml-pipeline-visualizationserver|applications\.app\.k8s\.io)$
-    patch: |
+      name: ^(cache-.*|kubeflow-pipelines-cache.*|metadata-writer|kubeflow-pipelines-metadata-writer.*|ml-pipeline-viewer.*|kubeflow-pipelines-viewer|viewers\.kubeflow\.org|applications\.app\.k8s\.io)$
+    patch: &delete |
       $patch: delete
       kind: Any
       metadata:
         name: any
+  # Visualization server (~1 GB image): v1 / TFX visualizations. Its Service stays:
+  # the API server refuses to start without ML_PIPELINE_VISUALIZATIONSERVER_SERVICE_HOST/PORT,
+  # which Kubernetes injects only when that Service exists.
+  - target:
+      kind: ^(Deployment|ServiceAccount)$
+      name: ^ml-pipeline-visualizationserver$
+    patch: *delete
