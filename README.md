@@ -34,6 +34,16 @@ Traefik is a `LoadBalancer` service on port 8080. Rancher Desktop and Docker Des
 kubectl -n traefik port-forward svc/traefik 8080:8080
 ```
 
+## Destroy
+
+Deleting the ApplicationSet removes the apps in reverse wave order (3, 2, 1), but namespaces and CRDs stay by design. For a clean slate, reset the local cluster:
+
+```bash
+rdctl reset --k8s     # Rancher Desktop, keeps cached images
+kind delete cluster   # kind
+minikube delete       # minikube
+```
+
 ## Fork
 
 Argo CD syncs from this repository. In a fork, replace the repository URL:
