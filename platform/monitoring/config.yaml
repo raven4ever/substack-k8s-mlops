@@ -1,0 +1,5 @@
+wave: "1"
+namespace: monitoring
+repoURL: ghcr.io/prometheus-community/charts
+chart: kube-prometheus-stack
+version: 91.5.1

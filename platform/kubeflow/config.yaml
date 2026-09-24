@@ -1,0 +1,3 @@
+wave: "3"
+namespace: kubeflow
+# No chart: vendored upstream manifests in manifests/

@@ -1,11 +1,27 @@
 configs:
   params:
     server.insecure: true # TLS, if any, ends at Traefik
-  repositories:
-    kserve-charts: # KServe publishes its charts only as OCI artifacts
+    applicationsetcontroller.enable.progressive.syncs: true # RollingSync waves in platform/appset.yaml
+  repositories: # Helm charts published only (or primarily) as OCI artifacts
+    kserve:
       type: helm
       name: kserve
       url: ghcr.io/kserve/charts
+      enableOCI: "true"
+    mlflow:
+      type: helm
+      name: mlflow
+      url: ghcr.io/mlflow/charts
+      enableOCI: "true"
+    jetstack:
+      type: helm
+      name: jetstack
+      url: quay.io/jetstack/charts
+      enableOCI: "true"
+    prometheus-community:
+      type: helm
+      name: prometheus-community
+      url: ghcr.io/prometheus-community/charts
       enableOCI: "true"
 dex:
   enabled: false

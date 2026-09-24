@@ -1,9 +1,8 @@
+# Postgres for MLflow. CloudNativePG generates secret mlflow-db-app (username, password, uri).
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: mlflow-db
-  annotations:
-    argocd.argoproj.io/sync-wave: "-1" # database healthy before MLflow starts
 spec:
   instances: 1
   storage:

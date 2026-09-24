@@ -1,8 +1,0 @@
-resources:
-  - upstream.yaml
-  - ingress.yaml
-# The visualization server (~1 GB image) only serves KFP v1 / TFX visualizations; KFP v2 pipelines do not use it.
-patches:
-  - patch: '{"$patch": "delete", "apiVersion": "apps/v1", "kind": "Deployment", "metadata": {"name": "ml-pipeline-visualizationserver", "namespace": "kubeflow"}}'
-  - patch: '{"$patch": "delete", "apiVersion": "v1", "kind": "Service", "metadata": {"name": "ml-pipeline-visualizationserver", "namespace": "kubeflow"}}'
-  - patch: '{"$patch": "delete", "apiVersion": "v1", "kind": "ServiceAccount", "metadata": {"name": "ml-pipeline-visualizationserver", "namespace": "kubeflow"}}'

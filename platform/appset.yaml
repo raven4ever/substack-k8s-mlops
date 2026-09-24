@@ -1,0 +1,65 @@
+# One Application per platform/<component>/config.yaml.
+# Chart components: chart coordinates in config.yaml, chart values in values.yaml.
+# Components without a chart (mlflow-db, kubeflow): plain manifests (or kustomization) in manifests/.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/raven4ever/substack-k8s-mlops.git
+        revision: main
+        files:
+          - path: platform/*/config.yaml
+  # Waves: each step starts only when every app of the previous step is Healthy.
+  # Deletion runs in reverse order.
+  strategy:
+    type: RollingSync
+    deletionOrder: Reverse
+    rollingSync:
+      steps:
+        # 1. CRDs, operators, ingress: traefik, cert-manager, cloudnative-pg, monitoring, kserve-crd
+        - matchExpressions: [{key: wave, operator: In, values: ["1"]}]
+        # 2. Core services: seaweedfs, mlflow-db (needs cloudnative-pg), kserve (needs cert-manager + kserve-crd)
+        - matchExpressions: [{key: wave, operator: In, values: ["2"]}]
+        # 3. ML tools: mlflow (needs mlflow-db + seaweedfs), kserve-runtimes (needs kserve webhook), kubeflow
+        - matchExpressions: [{key: wave, operator: In, values: ["3"]}]
+  template:
+    metadata:
+      name: '{{ .path.basename }}'
+      labels:
+        wave: '{{ .wave }}'
+    spec:
+      project: default
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .namespace }}'
+      syncPolicy:
+        # RollingSync disables autosync but reuses automated.prune for its own syncs.
+        automated: {prune: true, selfHeal: true}
+        syncOptions: [CreateNamespace=true, ServerSideApply=true]
+        retry:
+          limit: 10
+          backoff: {duration: 15s, factor: 2, maxDuration: 3m}
+  templatePatch: |
+    spec:
+      sources:
+      {{- if hasKey . "chart" }}
+        - repoURL: {{ .repoURL }}
+          chart: {{ .chart }}
+          targetRevision: {{ .version }}
+          helm:
+            valueFiles: ["$values/{{ .path.path }}/values.yaml"]
+            ignoreMissingValueFiles: true
+        - repoURL: https://github.com/raven4ever/substack-k8s-mlops.git
+          targetRevision: main
+          ref: values
+      {{- else }}
+        - repoURL: https://github.com/raven4ever/substack-k8s-mlops.git
+          targetRevision: main
+          path: {{ .path.path }}/manifests
+      {{- end }}

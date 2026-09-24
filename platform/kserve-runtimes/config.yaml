@@ -1,0 +1,5 @@
+wave: "3"
+namespace: kserve
+repoURL: ghcr.io/kserve/charts
+chart: kserve-runtime-configs
+version: v0.20.0

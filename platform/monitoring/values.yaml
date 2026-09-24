@@ -1,0 +1,19 @@
+# Prometheus + Grafana. Picks up every ServiceMonitor/PodMonitor in the cluster.
+alertmanager:
+  enabled: false
+# Control-plane components are not scrapeable on most local distributions (k3s, kind, minikube).
+kubeControllerManager: {enabled: false}
+kubeScheduler: {enabled: false}
+kubeEtcd: {enabled: false}
+kubeProxy: {enabled: false}
+prometheus:
+  prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+grafana:
+  admin:
+    existingSecret: grafana-admin # created by bootstrap/install.sh
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hosts: [grafana.localhost]

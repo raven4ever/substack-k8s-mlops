@@ -1,6 +1,6 @@
 # substack-k8s-mlops
 
-A local MLOps platform on Kubernetes, installed with GitOps (Argo CD, app of apps).
+A local MLOps platform on Kubernetes, installed with GitOps (one Argo CD ApplicationSet, synced in waves).
 
 | Component | Role |
 |-----------|------|
@@ -9,7 +9,7 @@ A local MLOps platform on Kubernetes, installed with GitOps (Argo CD, app of app
 | CloudNativePG | Postgres for MLflow |
 | SeaweedFS | S3-compatible storage for MLflow artifacts and DVC data |
 | MLflow | Experiment tracking and model registry |
-| Kubeflow Pipelines | Training pipelines |
+| Kubeflow Pipelines | Training pipelines (v2 only: v1-only components removed) |
 | KServe | Model serving (Standard mode, no Knative or Istio) |
 | kube-prometheus-stack | Prometheus and Grafana |
 
@@ -23,7 +23,7 @@ A local MLOps platform on Kubernetes, installed with GitOps (Argo CD, app of app
 
 ```bash
 ./bootstrap/install.sh
-kubectl -n argocd get applications -w   # wait until all are Synced / Healthy
+kubectl -n argocd get applications.argoproj.io -w   # waves 1 -> 2 -> 3, until all are Synced / Healthy
 ```
 
 The script prints the URLs and generated passwords.
@@ -45,9 +45,18 @@ grep -rl raven4ever/substack-k8s-mlops platform | xargs sed -i 's#raven4ever/sub
 ## Layout
 
 ```
-bootstrap/          Argo CD install and generated secrets (the only imperative step)
-platform/root.yaml  Root application
-platform/apps/      One Argo CD Application per component
-platform/manifests/ Extra manifests (MLflow database, KFP ingress)
-docs/               Problems log
+bootstrap/                      Argo CD install and generated secrets (the only imperative step)
+platform/appset.yaml            ApplicationSet: one Application per component, synced in waves
+platform/<component>/config.yaml  Wave, namespace and chart coordinates
+platform/<component>/values.yaml  Chart values
+platform/<component>/manifests/   Plain manifests for components without a chart (mlflow-db, kubeflow)
+docs/                           Problems log
 ```
+
+| Wave | Components | Why |
+|------|------------|-----|
+| 1 | traefik, cert-manager, cloudnative-pg, monitoring, kserve-crd | CRDs, operators, ingress |
+| 2 | seaweedfs, mlflow-db, kserve | mlflow-db needs CloudNativePG; kserve needs cert-manager and its CRDs |
+| 3 | mlflow, kserve-runtimes, kubeflow | mlflow needs mlflow-db and SeaweedFS; runtimes need the KServe webhook |
+
+Add a component: create `platform/<name>/config.yaml` (+ `values.yaml`) and push.

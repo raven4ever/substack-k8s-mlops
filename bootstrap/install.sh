@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time bootstrap: secrets + Argo CD + root app. Everything else is synced from Git.
+# One-time bootstrap: secrets + Argo CD + platform ApplicationSet. Everything else is synced from Git.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -37,13 +37,13 @@ if ! kubectl -n monitoring get secret grafana-admin >/dev/null 2>&1; then
 fi
 
 helm upgrade --install argocd argo-cd --repo https://argoproj.github.io/argo-helm \
-  --version "$ARGOCD_CHART_VERSION" -n argocd --create-namespace -f argocd-values.yaml --wait
-kubectl apply -f ../platform/root.yaml
+  --version "$ARGOCD_CHART_VERSION" -n argocd --create-namespace -f argocd-values.yaml --wait >/dev/null
+kubectl apply -f ../platform/appset.yaml
 
 secret() { kubectl -n "$1" get secret "$2" -o jsonpath="{.data.$3}" | base64 -d; }
 cat <<EOF
 
-Argo CD is syncing the platform. Watch it: kubectl -n argocd get applications -w
+Argo CD is syncing the platform. Watch it: kubectl -n argocd get applications.argoproj.io -w
   Argo CD   http://argocd.localhost:8080   admin / $(secret argocd argocd-initial-admin-secret password)
   Grafana   http://grafana.localhost:8080  admin / $(secret monitoring grafana-admin admin-password)
   MLflow    http://mlflow.localhost:8080

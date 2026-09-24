@@ -1,0 +1,5 @@
+wave: "2"
+namespace: seaweedfs
+repoURL: https://seaweedfs.github.io/seaweedfs/helm
+chart: seaweedfs
+version: 4.47.0

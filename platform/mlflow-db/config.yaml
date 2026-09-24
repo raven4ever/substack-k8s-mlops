@@ -1,0 +1,3 @@
+wave: "2"
+namespace: mlflow
+# No chart: CloudNativePG Cluster in manifests/

@@ -1,0 +1,18 @@
+resources:
+  - cluster-scoped.yaml
+  - pipelines.yaml
+  - ingress.yaml
+# Drop KFP v1-only components; KFP v2 pipelines never use them:
+# - cache-deployer / cache-server: v1 caching webhook (v2 caches in the driver)
+# - metadata-writer: v1 metadata (v2 driver/launcher write it)
+# - viewer controller + viewers CRD: v1 TensorBoard viewer
+# - visualization server (~1 GB image): v1 / TFX visualizations
+# - applications.app.k8s.io CRD: unused, and it hijacks `kubectl get applications` from Argo CD
+patches:
+  - target:
+      name: ^(cache-.*|kubeflow-pipelines-cache.*|metadata-writer|kubeflow-pipelines-metadata-writer.*|ml-pipeline-viewer.*|kubeflow-pipelines-viewer|viewers\.kubeflow\.org|ml-pipeline-visualizationserver|applications\.app\.k8s\.io)$
+    patch: |
+      $patch: delete
+      kind: Any
+      metadata:
+        name: any
