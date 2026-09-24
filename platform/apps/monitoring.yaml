@@ -1,0 +1,38 @@
+# Prometheus + Grafana. Picks up every ServiceMonitor/PodMonitor in the cluster.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 91.5.1
+    helm:
+      valuesObject:
+        alertmanager:
+          enabled: false
+        # Control-plane components are not scrapeable on most local distributions (k3s, kind, minikube).
+        kubeControllerManager: {enabled: false}
+        kubeScheduler: {enabled: false}
+        kubeEtcd: {enabled: false}
+        kubeProxy: {enabled: false}
+        prometheus:
+          prometheusSpec:
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+        grafana:
+          admin:
+            existingSecret: grafana-admin # created by bootstrap/install.sh
+          ingress:
+            enabled: true
+            ingressClassName: traefik
+            hosts: [grafana.localhost]
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated: {prune: true, selfHeal: true}
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]

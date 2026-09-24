@@ -1,0 +1,18 @@
+configs:
+  params:
+    server.insecure: true # TLS, if any, ends at Traefik
+  repositories:
+    kserve-charts: # KServe publishes its charts only as OCI artifacts
+      type: helm
+      name: kserve
+      url: ghcr.io/kserve/charts
+      enableOCI: "true"
+dex:
+  enabled: false
+notifications:
+  enabled: false
+server:
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    hostname: argocd.localhost
