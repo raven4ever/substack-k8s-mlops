@@ -1,4 +1,4 @@
-# Kubeflow Pipelines standalone, straight from the upstream kustomize manifests.
+# Kubeflow Pipelines standalone, from the upstream kustomize manifests.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -7,9 +7,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/kubeflow/pipelines.git
-    targetRevision: 2.17.2
-    path: manifests/kustomize/cluster-scoped-resources
+    repoURL: https://github.com/raven4ever/substack-k8s-mlops.git
+    targetRevision: main
+    path: platform/manifests/kfp-cluster-scoped
   destination:
     server: https://kubernetes.default.svc
   syncPolicy:
@@ -23,13 +23,10 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  sources:
-    - repoURL: https://github.com/kubeflow/pipelines.git
-      targetRevision: 2.17.2
-      path: manifests/kustomize/env/platform-agnostic
-    - repoURL: https://github.com/raven4ever/substack-k8s-mlops.git
-      targetRevision: main
-      path: platform/manifests/kfp
+  source:
+    repoURL: https://github.com/raven4ever/substack-k8s-mlops.git
+    targetRevision: main
+    path: platform/manifests/kfp
   destination:
     server: https://kubernetes.default.svc
     namespace: kubeflow
