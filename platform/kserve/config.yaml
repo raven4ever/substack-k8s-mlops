@@ -1,0 +1,5 @@
+wave: "2"
+namespace: kserve
+repoURL: ghcr.io/kserve/charts
+chart: kserve-resources
+version: v0.20.0

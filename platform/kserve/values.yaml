@@ -1,0 +1,8 @@
+# Model serving. Standard mode = plain Deployment + Ingress, no Knative or Istio.
+kserve:
+  controller:
+    deploymentMode: Standard
+    gateway:
+      domain: localhost # InferenceService URL: <name>-<namespace>.localhost:8080
+      ingressGateway:
+        className: traefik

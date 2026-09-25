@@ -1,0 +1,4 @@
+# ClusterServingRuntimes (sklearn, xgboost, mlflow, ...).
+kserve:
+  servingruntime:
+    enabled: true

@@ -1,0 +1,5 @@
+wave: "3"
+namespace: mlflow
+repoURL: ghcr.io/mlflow/charts
+chart: mlflow
+version: 0.1.0

@@ -1,0 +1,9 @@
+# Postgres for MLflow. CloudNativePG generates secret mlflow-db-app (username, password, uri).
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: mlflow-db
+spec:
+  instances: 1
+  storage:
+    size: 2Gi

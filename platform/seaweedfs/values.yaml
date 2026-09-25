@@ -1,0 +1,17 @@
+# S3-compatible object store for MLflow artifacts and DVC data.
+# Single pod runs master, volume, filer and S3 gateway.
+master: {enabled: false}
+volume: {enabled: false}
+filer: {enabled: false}
+allInOne:
+  enabled: true
+  s3:
+    enabled: true
+    enableAuth: true
+    existingConfigSecret: seaweedfs-s3-config # created by bootstrap/install.sh
+    createBuckets:
+      - name: mlflow
+      - name: dvc
+  data:
+    type: persistentVolumeClaim
+    size: 20Gi

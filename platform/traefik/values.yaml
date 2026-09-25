@@ -1,0 +1,6 @@
+ports:
+  # Unprivileged ports: no sudo on Linux, same URLs on every local cluster.
+  web:
+    exposedPort: 8080
+  websecure:
+    exposedPort: 8443
