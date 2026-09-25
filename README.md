@@ -28,6 +28,8 @@ kubectl -n argocd get applications.argoproj.io -w   # waves 1 -> 2 -> 3, until a
 
 The script prints the URLs and generated passwords.
 
+> **Local use only.** Argo CD and Grafana have generated admin passwords, but MLflow and Kubeflow Pipelines run without authentication. Do not expose this setup outside your machine.
+
 Traefik is a `LoadBalancer` service on port 8080. Rancher Desktop and Docker Desktop publish it on `localhost` automatically. On kind or minikube, run:
 
 ```bash
