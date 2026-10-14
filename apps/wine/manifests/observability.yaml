@@ -8,7 +8,7 @@ spec:
     matchLabels:
       serving.kserve.io/inferenceservice: wine-quality
   podMetricsEndpoints:
-  - portNumber: 8080
+  - port: http # declared by the pipeline's promote step
     path: /metrics
 ---
 apiVersion: v1

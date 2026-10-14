@@ -125,7 +125,12 @@ def promote(data: dsl.Input[dsl.Dataset], version: str, model_name: str, namespa
         "metadata": {"name": model_name, "namespace": namespace, "labels": {"model-version": version}},
         "spec": {"predictor": {
             "serviceAccountName": "wine-model",  # carries the S3 credentials, see apps/wine
-            "model": {"modelFormat": {"name": "sklearn"}, "storageUri": storage_uri},
+            "model": {
+                "modelFormat": {"name": "sklearn"},
+                "storageUri": storage_uri,
+                # KServe declares no container port; a named port lets Prometheus find /metrics
+                "ports": [{"name": "http", "containerPort": 8080, "protocol": "TCP"}],
+            },
         }},
     }
     config.load_incluster_config()
