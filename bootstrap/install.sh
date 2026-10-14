@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 ARGOCD_CHART_VERSION=10.9.2
-S3_CONSUMERS="mlflow" # namespaces that get the s3-credentials secret
+S3_CONSUMERS="mlflow kubeflow wine" # namespaces that get the s3-credentials secret (MLflow, pipelines, serving)
 
 kubectl get nodes >/dev/null # fail fast when no cluster is reachable
 

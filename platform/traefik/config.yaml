@@ -1,4 +1,4 @@
-wave: "1"
+wave: "2"
 namespace: traefik
 repoURL: https://traefik.github.io/charts
 chart: traefik

@@ -6,3 +6,9 @@ kserve:
       domain: localhost # InferenceService URL: <name>-<namespace>.localhost:8080
       ingressGateway:
         className: traefik
+  # Default S3 location for storageUri s3://..., credentials come from the predictor's service account.
+  storage:
+    s3:
+      endpoint: seaweedfs-all-in-one.seaweedfs:8333
+      useHttps: "0"
+      useVirtualBucket: "false"

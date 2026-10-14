@@ -15,3 +15,8 @@ allInOne:
   data:
     type: persistentVolumeClaim
     size: 20Gi
+s3:
+  ingress: # http://s3.localhost:8080, for dvc push/pull from the laptop
+    enabled: true
+    className: traefik
+    host: s3.localhost
