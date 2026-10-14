@@ -7,6 +7,7 @@ Every check is logged to the MLflow experiment wine-quality-monitoring, with the
 import os
 
 import dvc.api
+from dvc.api import DVCFileSystem
 import mlflow
 import pandas as pd
 from evidently import Report
@@ -17,6 +18,11 @@ from mlflow.exceptions import MlflowException
 from pipeline import MODEL, REPO, resolve, run_name, submit
 
 KFP_HOST = os.environ.get("KFP_HOST", "http://ml-pipeline.kubeflow:8888")
+
+
+def data_hash(rev: str) -> str:
+    """md5 of data/wine.csv at a Git revision, read from the .dvc pointer (no download)."""
+    return DVCFileSystem(REPO, rev=rev).info("data/wine.csv")["md5"]
 
 
 def features(rev: str) -> pd.DataFrame:
@@ -33,8 +39,8 @@ def main():
         return
     trained_on = registry.get_run(champion.run_id).data.tags["data_rev"]
     latest = resolve("main")
-    if latest == trained_on:
-        print(f"champion v{champion.version} is trained on the latest data ({latest[:7]})")
+    if data_hash(latest) == data_hash(trained_on):  # code-only commits do not count
+        print(f"champion v{champion.version} is trained on the latest data")
         return
 
     kfp = Client(host=KFP_HOST)
