@@ -1,4 +1,4 @@
-# One image for every ML step: pipeline components, drift monitor, pipeline submitter.
+# One image for every ML step: pipeline components, drift monitor, pipeline submitter. Build: ml/build.sh
 FROM python:3.12-slim
 RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt /tmp/requirements.txt

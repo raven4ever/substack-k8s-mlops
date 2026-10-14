@@ -17,7 +17,7 @@ from kfp import dsl, kubernetes
 from kfp.client import Client
 
 VERSION = (Path(__file__).parent / "VERSION").read_text().strip()
-IMAGE = f"ghcr.io/raven4ever/substack-k8s-mlops/ml:{VERSION}"
+IMAGE = f"wine-ml:{VERSION}"  # built locally by ml/build.sh
 REPO = "https://github.com/raven4ever/substack-k8s-mlops"
 MLFLOW = "http://mlflow.mlflow:5000"
 MODEL = "wine-quality"

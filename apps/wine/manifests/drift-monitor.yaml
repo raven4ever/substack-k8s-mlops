@@ -14,7 +14,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: monitor
-              image: ghcr.io/raven4ever/substack-k8s-mlops/ml:0.1.0 # keep in sync with ml/VERSION
+              image: wine-ml:0.1.0 # built by ml/build.sh, keep in sync with ml/VERSION
               command: [python, monitor.py]
               env:
                 - name: MLFLOW_TRACKING_URI
