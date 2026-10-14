@@ -1,0 +1,24 @@
+# Compares the champion's training data with the latest data on main and retrains on drift (ml/monitor.py).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: drift-monitor
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: monitor
+              image: ghcr.io/raven4ever/substack-k8s-mlops/ml:0.1.0 # keep in sync with ml/VERSION
+              command: [python, monitor.py]
+              env:
+                - name: MLFLOW_TRACKING_URI
+                  value: http://mlflow.mlflow:5000
+              envFrom:
+                - secretRef:
+                    name: s3-credentials # DVC reads from SeaweedFS

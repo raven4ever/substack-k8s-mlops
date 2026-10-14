@@ -1,0 +1,6 @@
+[core]
+    remote = storage
+    analytics = false
+['remote "storage"']
+    url = s3://dvc/wine
+    endpointurl = http://seaweedfs-all-in-one.seaweedfs:8333

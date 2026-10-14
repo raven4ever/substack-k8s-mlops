@@ -1,0 +1,3 @@
+wave: "4"
+namespace: wine
+# No chart: serving account, RBAC, monitoring and the drift CronJob in manifests/

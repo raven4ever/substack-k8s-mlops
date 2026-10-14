@@ -1,0 +1,9 @@
+# scikit-learn must match the KServe sklearn runtime (kserve/sklearnserver:v0.20.0 ships 1.5.x),
+# because the model is served from its pickle.
+scikit-learn==1.5.2
+pandas==2.2.3
+mlflow-skinny==3.16.1
+evidently==0.7.23
+dvc[s3]==3.67.1
+kfp==2.17.0
+kfp-kubernetes==2.17.0

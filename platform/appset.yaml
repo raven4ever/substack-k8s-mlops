@@ -1,4 +1,4 @@
-# One Application per platform/<component>/config.yaml.
+# One Application per platform/<component>/config.yaml (the platform) and apps/<app>/config.yaml (its tenants).
 # Chart components: chart coordinates in config.yaml, chart values in values.yaml.
 # Components without a chart (mlflow-db, kubeflow): plain manifests (or kustomization) in manifests/.
 apiVersion: argoproj.io/v1alpha1
@@ -15,6 +15,7 @@ spec:
         revision: main
         files:
           - path: platform/*/config.yaml
+          - path: apps/*/config.yaml
   # Waves: each step starts only when every app of the previous step is Healthy.
   # Deletion runs in reverse order.
   strategy:
@@ -22,12 +23,15 @@ spec:
     deletionOrder: Reverse
     rollingSync:
       steps:
-        # 1. CRDs, operators, ingress: traefik, cert-manager, cloudnative-pg, monitoring, kserve-crd
+        # 1. CRDs and operators: cert-manager, cloudnative-pg, monitoring, kserve-crd
         - matchExpressions: [{key: wave, operator: In, values: ["1"]}]
-        # 2. Core services: seaweedfs, mlflow-db (needs cloudnative-pg), kserve (needs cert-manager + kserve-crd)
+        # 2. Core services: traefik (its ServiceMonitor needs monitoring), seaweedfs, mlflow-db (needs cloudnative-pg),
+        #    kserve (needs cert-manager + kserve-crd)
         - matchExpressions: [{key: wave, operator: In, values: ["2"]}]
         # 3. ML tools: mlflow (needs mlflow-db + seaweedfs), kserve-runtimes (needs kserve webhook), kubeflow
         - matchExpressions: [{key: wave, operator: In, values: ["3"]}]
+        # 4. Tenants: apps/* (wine: model serving, monitoring and retraining on top of the platform)
+        - matchExpressions: [{key: wave, operator: In, values: ["4"]}]
   template:
     metadata:
       name: '{{ .path.basename }}'
