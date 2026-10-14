@@ -6,7 +6,7 @@ promote makes the new model the MLflow `champion` only if it beats the current c
 same held-out split, then rolls the KServe InferenceService to it.
 
 Submit from the laptop:
-    uv run --with kfp==2.17.0 --with kfp-kubernetes==2.17.0 python ml/pipeline.py --data-rev main
+    uv run --no-project --with kfp==2.17.0 --with kfp-kubernetes==2.17.0 python ml/pipeline.py --data-rev main
 """
 import argparse
 import functools
@@ -116,10 +116,8 @@ def promote(data: dsl.Input[dsl.Dataset], version: str, model_name: str, namespa
         return
 
     registry = mlflow.MlflowClient()
-    registry.set_registered_model_alias(model_name, "champion", version)
-    model_id = registry.get_model_version(model_name, version).model_id
     # MLflow proxies artifacts: mlflow-artifacts:/<path> lives at s3://mlflow/<path> in SeaweedFS.
-    storage_uri = mlflow.get_logged_model(model_id).artifact_location.replace("mlflow-artifacts:", "s3://mlflow")
+    storage_uri = registry.get_model_version_download_uri(model_name, version).replace("mlflow-artifacts:", "s3://mlflow")
 
     isvc = {
         "apiVersion": "serving.kserve.io/v1beta1",
@@ -139,6 +137,8 @@ def promote(data: dsl.Input[dsl.Dataset], version: str, model_name: str, namespa
         if e.status != 404:
             raise
         api.create_namespaced_custom_object(*target, isvc)
+    # Alias last: champion always means "the model that is serving".
+    registry.set_registered_model_alias(model_name, "champion", version)
     print(f"v{version} is champion, serving {storage_uri}")
 
 

@@ -1,0 +1,40 @@
+# Model metrics for Prometheus and a Grafana dashboard (the Grafana sidecar loads ConfigMaps labelled grafana_dashboard).
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: wine-quality
+spec:
+  selector:
+    matchLabels:
+      serving.kserve.io/inferenceservice: wine-quality
+  podMetricsEndpoints:
+  - portNumber: 8080
+    path: /metrics
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wine-quality-dashboard
+  labels:
+    grafana_dashboard: '1'
+data:
+  wine-quality.json: "{\n  \"uid\": \"wine-quality\",\n  \"title\": \"Wine quality model\",\n  \"schemaVersion\": 39,\n  \"refresh\": \"10s\",\n  \"time\": {\n    \"from\": \"now-30m\",\n    \"to\": \"\
+    now\"\n  },\n  \"panels\": [\n    {\n      \"id\": 1,\n      \"type\": \"timeseries\",\n      \"title\": \"Requests per second, by status\",\n      \"datasource\": {\n        \"type\": \"prometheus\"\
+    ,\n        \"uid\": \"prometheus\"\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 0,\n        \"y\": 0\n      },\n      \"fieldConfig\": {\n        \"defaults\"\
+    : {\n          \"unit\": \"reqps\"\n        },\n        \"overrides\": []\n      },\n      \"targets\": [\n        {\n          \"refId\": \"A\",\n          \"expr\": \"sum by (code) (rate(traefik_service_requests_total{exported_service=~\\\
+    \"wine-wine-quality.*\\\"}[1m]))\",\n          \"legendFormat\": \"{{code}}\",\n          \"datasource\": {\n            \"type\": \"prometheus\",\n            \"uid\": \"prometheus\"\n          }\n\
+    \        }\n      ]\n    },\n    {\n      \"id\": 2,\n      \"type\": \"timeseries\",\n      \"title\": \"Error ratio (5xx)\",\n      \"datasource\": {\n        \"type\": \"prometheus\",\n        \"\
+    uid\": \"prometheus\"\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\": 12,\n        \"x\": 12,\n        \"y\": 0\n      },\n      \"fieldConfig\": {\n        \"defaults\": {\n    \
+    \      \"unit\": \"percentunit\"\n        },\n        \"overrides\": []\n      },\n      \"targets\": [\n        {\n          \"refId\": \"A\",\n          \"expr\": \"sum(rate(traefik_service_requests_total{exported_service=~\\\
+    \"wine-wine-quality.*\\\",code=~\\\"5..\\\"}[5m])) / sum(rate(traefik_service_requests_total{exported_service=~\\\"wine-wine-quality.*\\\"}[5m]))\",\n          \"legendFormat\": \"5xx\",\n         \
+    \ \"datasource\": {\n            \"type\": \"prometheus\",\n            \"uid\": \"prometheus\"\n          }\n        }\n      ]\n    },\n    {\n      \"id\": 3,\n      \"type\": \"timeseries\",\n \
+    \     \"title\": \"Prediction latency\",\n      \"datasource\": {\n        \"type\": \"prometheus\",\n        \"uid\": \"prometheus\"\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"w\"\
+    : 12,\n        \"x\": 0,\n        \"y\": 8\n      },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"unit\": \"s\"\n        },\n        \"overrides\": []\n      },\n      \"targets\"\
+    : [\n        {\n          \"refId\": \"A\",\n          \"expr\": \"histogram_quantile(0.5, sum by (le) (rate(request_predict_seconds_bucket{namespace=\\\"wine\\\"}[5m])))\",\n          \"legendFormat\"\
+    : \"p50\",\n          \"datasource\": {\n            \"type\": \"prometheus\",\n            \"uid\": \"prometheus\"\n          }\n        },\n        {\n          \"refId\": \"B\",\n          \"expr\"\
+    : \"histogram_quantile(0.95, sum by (le) (rate(request_predict_seconds_bucket{namespace=\\\"wine\\\"}[5m])))\",\n          \"legendFormat\": \"p95\",\n          \"datasource\": {\n            \"type\"\
+    : \"prometheus\",\n            \"uid\": \"prometheus\"\n          }\n        }\n      ]\n    },\n    {\n      \"id\": 4,\n      \"type\": \"timeseries\",\n      \"title\": \"Predictions per second,\
+    \ by pod (a rollout shows as a new pod)\",\n      \"datasource\": {\n        \"type\": \"prometheus\",\n        \"uid\": \"prometheus\"\n      },\n      \"gridPos\": {\n        \"h\": 8,\n        \"\
+    w\": 12,\n        \"x\": 12,\n        \"y\": 8\n      },\n      \"fieldConfig\": {\n        \"defaults\": {\n          \"unit\": \"reqps\"\n        },\n        \"overrides\": []\n      },\n      \"\
+    targets\": [\n        {\n          \"refId\": \"A\",\n          \"expr\": \"sum by (pod) (rate(request_predict_seconds_count{namespace=\\\"wine\\\"}[1m]))\",\n          \"legendFormat\": \"{{pod}}\"\
+    ,\n          \"datasource\": {\n            \"type\": \"prometheus\",\n            \"uid\": \"prometheus\"\n          }\n        }\n      ]\n    }\n  ]\n}"
